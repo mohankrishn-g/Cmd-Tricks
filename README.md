@@ -1,2 +1,4 @@
-# krishnamohan352-gmail.com
 Cmd tricks
+
+
+some of cool cmd tricks here
