@@ -1,0 +1,60 @@
+Just spicing up the shell script above to delete older files but with logging and calculation of elapsed time
+
+#!/bin/bash
+
+path="/data/backuplog/"
+timestamp=$(date +%Y%m%d_%H%M%S)    
+filename=log_$timestamp.txt    
+log=$path$filename
+days=7
+
+START_TIME=$(date +%s)
+
+find $path -maxdepth 1 -name "*.txt"  -type f -mtime +$days  -print -delete >> $log
+
+echo "Backup:: Script Start -- $(date +%Y%m%d_%H%M)" >> $log
+
+
+... code for backup ...or any other operation .... >> $log
+
+
+END_TIME=$(date +%s)
+
+ELAPSED_TIME=$(( $END_TIME - $START_TIME ))
+
+
+echo "Backup :: Script End -- $(date +%Y%m%d_%H%M)" >> $log
+echo "Elapsed Time ::  $(date -d 00:00:$ELAPSED_TIME +%Hh:%Mm:%Ss) "  >> $log
+The code adds a few things.
+
+log files named with a timestamp
+log folder specified
+find looks for *.txt files only in the log folder
+type f ensures you only deletes files
+maxdepth 1 ensures you dont enter subfolders
+log files older than 7 days are deleted ( assuming this is for a backup log)
+notes the start / end time
+calculates the elapsed time for the backup operation...
+Note: to test the code, just use -print instead of -print -delete. But do check your path carefully though.
+
+Note: Do ensure your server time is set correctly via date - setup timezone/ntp correctly . Additionally check file times with 'stat filename'
+
+Note: mtime can be replaced with mmin for better control as mtime discards all fractions (older than 2 days (+2 days) actually means 3 days ) when it deals with getting the timestamps of files in the context of days
+
+-mtime +$days  --->  -mmin  +$((60*24*$days))
+
+
+
+429
+
+
+find is the common tool for this kind of task :
+
+find ./my_dir -mtime +10 -type f -delete
+EXPLANATIONS
+
+./my_dir your directory (replace with your own)
+-mtime +10 older than 10 days
+-type f only files
+-delete no surprise. Remove it to test your find filter before executing the whole command
+And take care that ./my_dir exists to avoid bad surprises !
